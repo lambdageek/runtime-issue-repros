@@ -19,10 +19,6 @@ namespace BlazorApp1.Pages
 
     internal static class HelloWasm
     {
-        private static int staticInt;
-        [ThreadStatic]
-        private static int threadStaticInt;
-
         internal static bool Success;
 
         public static unsafe int Run()
@@ -30,18 +26,25 @@ namespace BlazorApp1.Pages
             Success = true;
             PrintLine("Starting " + 1);
 
-            TestTryCatch();
+	    // this entire call is important
+            //Outline ();
 
-            TestGvmCallInIf(new GenDerived<string>(), "hello");
+            TestTryCatch();
 
 
             PrintLine("Done");
             return Success ? 100 : -1;
         }
 
+	[MethodImpl(MethodImplOptions.NoInlining)]
+	public static void Outline()
+	{
+	    TestGvmCallInIf(new GenDerived<string>(), "hello");
+	}
+
         private static void StartTest(string testDescription)
         {
-            PrintString(testDescription + ": ");
+            PrintLine(testDescription + ": ");
         }
 
         private static void EndTest(bool result, string failMessage = null)
@@ -68,14 +71,8 @@ namespace BlazorApp1.Pages
             if (failMessage != null) PrintLine(failMessage + "-");
         }
 
-        private static unsafe void PrintString(string s)
-        {
-        }
-
         public static void PrintLine(string s)
         {
-            PrintString(s);
-            PrintString("\n");
         }
 
         class GenBase<A>
@@ -89,11 +86,7 @@ namespace BlazorApp1.Pages
 
         private static void TestGvmCallInIf<T>(GenBase<T> g, T p)
         {
-            var i = 1;
-            if (i == 1)
-            {
                 g.GMethod1(p, p);
-            }
         }
 
         private static void TestTryCatch()
